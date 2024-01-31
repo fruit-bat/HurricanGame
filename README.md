@@ -38,6 +38,9 @@ Building for PI 5
     cmake --build .
     cd ..
     ./build/hurrican -NV -colorbleed
+This Pi 5 will deliver a smooth 400fps and the graphics look good. I am struggling to disable the ctrl-alt-arrow keys, which resize the window during game play. Frame-sync is not working properly and results is a 30fps display. Advice appreciated on both these issues!
+
+
 
 The following build options are available:
 
