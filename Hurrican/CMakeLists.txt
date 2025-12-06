@@ -537,6 +537,22 @@ find_package(SDL2)
 if (SDL2_FOUND)
     find_package(SDL2_image REQUIRED)
     find_package(SDL2_mixer REQUIRED)
+    # Override broken FindSDL2_mixer.cmake if it didn't set any useful vars
+    if(NOT SDL2_MIXER_LIBRARIES OR SDL2_MIXER_LIBRARIES STREQUAL "")
+        message(WARNING "⚠️  SDL2_mixer was 'found' but no libraries or include dirs were set. Falling back to pkg-config.")
+
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
+
+        set(SDL2_MIXER_INCLUDE_DIRS ${SDL2_MIXER_INCLUDE_DIRS})
+        set(SDL2_MIXER_LIBRARIES ${SDL2_MIXER_LIBRARIES})
+
+        include_directories(${SDL2_MIXER_INCLUDE_DIRS})
+        link_directories(${SDL2_MIXER_LIBRARY_DIRS})
+    endif()
+    message(STATUS "SDL2_mixer_INCLUDE_DIRS = ${SDL2_MIXER_INCLUDE_DIRS}")
+    message(STATUS "SDL2_mixer_LIBRARIES    = ${SDL2_MIXER_LIBRARIES}")
+    message(STATUS "SDL2_mixer_FOUND        = ${SDL2_MIXER_FOUND}")
 else()
     set(SDL_BUILDING_LIBRARY TRUE)
     find_package(SDL REQUIRED)
@@ -555,14 +571,15 @@ if (SDL2_FOUND)
                         ${SDL2_IMAGE_INCLUDE_DIR}
                         ${SDL2_MIXER_INCLUDE_DIR})
 
-    set(SDL2_MIXER_LIBRARIES SDL2_mixer::SDL2_mixer)
-    set(SDL2_IMAGE_LIBRARIES SDL2_image::SDL2_image)
+		#set(SDL2_MIXER_LIBRARIES SDL2_mixer::SDL2_mixer)
+		#set(SDL2_IMAGE_LIBRARIES SDL2_image::SDL2_image)
     message(STATUS, "Using SDL2 include ${SDL2_INCLUDE_DIR}")
     message(STATUS, "Using SDL2 library ${SDL2_LIBRARIES}")
+    message(STATUS, "Using SDL2 library ${SDL2_LIBRARY}")
     message(STATUS, "Using SDL2 mixer library ${SDL2_MIXER_LIBRARIES}")
     message(STATUS, "Using SDL2 image library ${SDL2_IMAGE_LIBRARIES}")
 
-    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
     #    target_link_libraries(${PROJECT_NAME} EGL)
 else()
     include_directories(${SDL_INCLUDE_DIR}
