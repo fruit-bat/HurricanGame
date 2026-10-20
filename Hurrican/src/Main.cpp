@@ -126,6 +126,7 @@ void FillCommandLineParams(int argc, char *args[]) {
     CommandLineParams.ShowFPS = false;
     CommandLineParams.AllowNPotTextureSizes = false;
     CommandLineParams.LowRes = false;
+    CommandLineParams.RenderScale = 1;
     CommandLineParams.DataPath = nullptr;
     CommandLineParams.SavePath = nullptr;
     CommandLineParams.Arcade = false;
@@ -144,6 +145,10 @@ void FillCommandLineParams(int argc, char *args[]) {
             Protokoll << "                            ( Default is " << DEFAULT_SCREENBPP << " )\n";
             Protokoll << "  -L,    --lowres         : Use " << LOWRES_SCREENWIDTH << "x" << LOWRES_SCREENHEIGHT
                       << " low-resolution screen dimensions\n";
+            Protokoll << "  -RS x, --renderscale x  : Render internally at x times " << RENDERWIDTH << "x" << RENDERHEIGHT
+                      << " (1-" << MAX_RENDERSCALE << ")\n";
+            Protokoll << "                            High-res textures in data/textures/hd/ are used when x > 1\n";
+            Protokoll << "                            ( Default is 1 )\n";
             Protokoll << "  -NV,   --novsync        : Disable VSync / double-buffering\n";
             Protokoll << "  -NP,   --nonpot         : Allow non-power-of-two texture sizes\n";
             Protokoll << "                            Normally, GPUs require texture dimensions that are\n";
@@ -204,6 +209,15 @@ void FillCommandLineParams(int argc, char *args[]) {
         } else if ((strstr(args[i], "--lowres") != nullptr) || (strstr(args[i], "-L") != nullptr)) {
             std::cout << "Low-resolution 320x240 screen dimensions are requested" << std::endl;
             CommandLineParams.LowRes = true;
+        } else if ((strstr(args[i], "--renderscale") != nullptr) || (strstr(args[i], "-RS") != nullptr)) {
+            i++;
+            if (i < argc && args[i]) {
+                int const scale = atoi(args[i]);
+                if (scale >= 1 && scale <= MAX_RENDERSCALE) {
+                    CommandLineParams.RenderScale = static_cast<uint8_t>(scale);
+                    std::cout << "Render scale set to " << scale << std::endl;
+                }
+            }
         } else if ((strstr(args[i], "--novsync") != nullptr) || (strstr(args[i], "-NV") != nullptr)) {
             std::cout << "VSync / double-buffering will be disabled, if supported" << std::endl;
             CommandLineParams.VSync = false;

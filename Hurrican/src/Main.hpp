@@ -44,6 +44,7 @@ struct sCommandLineParams {
     bool VSync;
     uint8_t ScreenDepth;
     bool LowRes;
+    uint8_t RenderScale;
     bool Arcade;
 };
 
@@ -62,6 +63,9 @@ constexpr int LOWRES_SCREENHEIGHT = 240;
 
 constexpr int RENDERWIDTH = 640;
 constexpr int RENDERHEIGHT = 480;
+
+// Maximum multiplier for the internal render buffer (see --renderscale)
+constexpr int MAX_RENDERSCALE = 4;
 
 // DKS - Screen depth is now configurable from the command line; if your
 //      platform does not support the default value of 32, you may define it

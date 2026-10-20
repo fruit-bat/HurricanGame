@@ -200,6 +200,14 @@ bool TexturesystemClass::LoadTextureFromFile(const std::string &filename, Textur
             goto loadfile;
     }
 
+    // When rendering above 640x480, prefer an upscaled copy from data/textures/hd/ if one exists
+    if (CommandLineParams.RenderScale > 1 && !CommandLineParams.LowRes) {
+        path = g_storage_ext + "/data/textures/hd";
+        fullpath = path + "/" + filename;
+        if (fs::exists(fullpath) && fs::is_regular_file(fullpath))
+            goto loadfile;
+    }
+
     // Dann checken, ob sich das File im Standard Ordner befindet
     path = g_storage_ext + "/data/textures";
     fullpath = path + "/" + filename;

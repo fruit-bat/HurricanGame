@@ -53,6 +53,7 @@ DirectGraphicsClass::DirectGraphicsClass() {
     SupportedETC1 = false;
     SupportedPVRTC = false;
     use_shader = shader_t::COLOR;
+    RenderScale = 1;
 
 #if defined(USE_GL2) || defined(USE_GL3)
     ProgramCurrent = PROGRAM_NONE;
@@ -76,6 +77,10 @@ bool DirectGraphicsClass::Init(std::uint32_t dwBreite, std::uint32_t dwHoehe, st
     if (CommandLineParams.LowRes) {
         ScreenWidth = LOWRES_SCREENWIDTH;
         ScreenHeight = LOWRES_SCREENHEIGHT;
+    } else if (!isFullscreen) {
+        // Size the window to match the render buffer so the extra detail is visible
+        ScreenWidth *= CommandLineParams.RenderScale;
+        ScreenHeight *= CommandLineParams.RenderScale;
     }
 
     CrtEnabled = CommandLineParams.ScreenCurvature
@@ -480,6 +485,9 @@ bool DirectGraphicsClass::SetDeviceInfo() {
 bool DirectGraphicsClass::TakeScreenshot(const char Filename[100], int screenx, int screeny) {
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
+    // The render buffer may be larger than the 640x480 the game draws in
+    screenx *= RenderScale;
+    screeny *= RenderScale;
     SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, screenx, screeny, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
     glReadPixels(0, 0, screenx, screeny, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
     FlipSurface(image);
@@ -845,17 +853,26 @@ void DirectGraphicsClass::SetupFramebuffers() {
     RenderView.y = 0;
     RenderView.w = RENDERWIDTH;
     RenderView.h = RENDERHEIGHT;
+    RenderScale = 1;
 #if (defined(USE_GL2) || defined(USE_GL3)) && defined(USE_FBO)
-    /* Create an FBO for rendering */
-    RenderBuffer.Open(RenderView.w, RenderView.h);
+    /* Create an FBO for rendering. The game still draws in 640x480 coordinates (RenderView),
+       but the buffer can be RenderScale times larger so that rotated/scaled sprites, sub-pixel
+       movement and high-resolution textures are not reduced to 640x480 pixels. */
+    RenderScale = CommandLineParams.LowRes ? 1 : CommandLineParams.RenderScale;
+    RenderBuffer.Open(RenderView.w * RenderScale, RenderView.h * RenderScale);
+
+    if (!RenderBuffer.IsEnabled() && RenderScale > 1) {
+        Protokoll << "Failed to create render buffer at scale " << RenderScale << ", falling back to 1" << std::endl;
+        RenderScale = 1;
+        RenderBuffer.Open(RenderView.w, RenderView.h);
+    }
 
     if (RenderBuffer.IsEnabled()) {
         /* Set the render viewport */
         SelectBuffer(true);
-        glViewport(RenderView.x, RenderView.y, RenderView.w, RenderView.h);
         SelectBuffer(false);
-        Protokoll << "Render viewport resolution: " << RenderView.w << "x" << RenderView.h << " at " << RenderView.x
-                  << "x" << RenderView.y << std::endl;
+        Protokoll << "Render viewport resolution: " << RenderView.w * RenderScale << "x" << RenderView.h * RenderScale
+                  << " at " << RenderView.x << "x" << RenderView.y << std::endl;
 
         if (CommandLineParams.RunWindowMode == ScreenMode::FULLSCREEN_STRETCHED) {
             /* Fill the whole screen area */
@@ -920,7 +937,7 @@ void DirectGraphicsClass::SelectBuffer(bool active) {
     if (RenderBuffer.IsEnabled()) {
         if (active) {
             glBindFramebuffer(GL_FRAMEBUFFER, RenderBuffer.GetFramebuffer());
-            glViewport(RenderView.x, RenderView.y, RenderView.w, RenderView.h);
+            glViewport(RenderView.x, RenderView.y, RenderView.w * RenderScale, RenderView.h * RenderScale);
             matProj = matProjRender;
         } else {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);

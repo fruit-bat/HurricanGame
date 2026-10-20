@@ -100,6 +100,7 @@ class DirectGraphicsClass {
     SDL_Rect WindowView;
     SDL_Rect RenderView;
     SDL_Rect RenderRect;
+    int RenderScale;  // Render buffer resolution multiplier relative to RenderView (1 = 640x480)
 #if (defined(USE_GL2) || defined(USE_GL3)) && defined(USE_FBO)
     CFbo RenderBuffer;
 #endif
