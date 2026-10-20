@@ -1,0 +1,2 @@
+SDL2_LIBRARIES="/lib/x86_64-linux-gnu/libSDL2-2.0.so.0";cmake -DCMAKE_BUILD_TYPE=Release -DRENDERER=GL2  ..
+

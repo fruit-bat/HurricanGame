@@ -584,12 +584,12 @@ void CreateDefaultControlsConfig(int player) {
         return;
 
     if (player == 0) {
+#if defined(PANDORA)
         Player[0].AktionKeyboard[AKTION_LINKS] = DIK_LEFT;
         Player[0].AktionKeyboard[AKTION_RECHTS] = DIK_RIGHT;
         Player[0].AktionKeyboard[AKTION_DUCKEN] = DIK_DOWN;
         Player[0].AktionKeyboard[AKTION_OBEN] = DIK_UP;
         Player[0].AktionKeyboard[AKTION_UNTEN] = DIK_DOWN;
-#if defined(PANDORA)
         Player[0].AktionKeyboard[AKTION_JUMP] = DIK_NEXT;
         Player[0].AktionKeyboard[AKTION_SHOOT] = DIK_HOME;
         Player[0].AktionKeyboard[AKTION_BLITZ] = DIK_PRIOR;
@@ -601,16 +601,23 @@ void CreateDefaultControlsConfig(int player) {
         Player[0].AktionKeyboard[AKTION_WAFFE_BOUNCE] = DIK_3;
         Player[0].AktionKeyboard[AKTION_WAFFEN_CYCLE] = DIK_RETURN;
 #else
-        Player[0].AktionKeyboard[AKTION_JUMP] = DIK_LALT;
-        Player[0].AktionKeyboard[AKTION_SHOOT] = DIK_LCONTROL;
-        Player[0].AktionKeyboard[AKTION_BLITZ] = DIK_LSHIFT;
-        Player[0].AktionKeyboard[AKTION_POWERLINE] = DIK_SPACE;
-        Player[0].AktionKeyboard[AKTION_GRANATE] = DIK_RCONTROL;
-        Player[0].AktionKeyboard[AKTION_SMARTBOMB] = DIK_RSHIFT;
+        // WASD movement. Avoids the old Ctrl+Alt+Arrow defaults, which desktop
+        // window managers intercept as their workspace-switching shortcut.
+        Player[0].AktionKeyboard[AKTION_LINKS] = DIK_A;
+        Player[0].AktionKeyboard[AKTION_RECHTS] = DIK_D;
+        Player[0].AktionKeyboard[AKTION_DUCKEN] = DIK_S;
+        Player[0].AktionKeyboard[AKTION_OBEN] = DIK_W;
+        Player[0].AktionKeyboard[AKTION_UNTEN] = DIK_S;
+        Player[0].AktionKeyboard[AKTION_JUMP] = DIK_SPACE;
+        Player[0].AktionKeyboard[AKTION_SHOOT] = DIK_RSHIFT;
+        Player[0].AktionKeyboard[AKTION_BLITZ] = DIK_RETURN;
+        Player[0].AktionKeyboard[AKTION_POWERLINE] = DIK_LSHIFT;
+        Player[0].AktionKeyboard[AKTION_GRANATE] = DIK_E;
+        Player[0].AktionKeyboard[AKTION_SMARTBOMB] = DIK_R;
         Player[0].AktionKeyboard[AKTION_WAFFE_SPREAD] = 0;
         Player[0].AktionKeyboard[AKTION_WAFFE_LASER] = 0;
         Player[0].AktionKeyboard[AKTION_WAFFE_BOUNCE] = 0;
-        Player[0].AktionKeyboard[AKTION_WAFFEN_CYCLE] = DIK_RETURN;
+        Player[0].AktionKeyboard[AKTION_WAFFEN_CYCLE] = DIK_Q;
 
         Player[0].AktionJoystick[AKTION_LINKS] = -1;
         Player[0].AktionJoystick[AKTION_RECHTS] = -1;
@@ -655,21 +662,21 @@ void CreateDefaultControlsConfig(int player) {
 #endif  // GCW
 
     } else {
-        Player[1].AktionKeyboard[AKTION_LINKS] = DIK_A;
-        Player[1].AktionKeyboard[AKTION_RECHTS] = DIK_D;
-        Player[1].AktionKeyboard[AKTION_DUCKEN] = DIK_S;
-        Player[1].AktionKeyboard[AKTION_OBEN] = DIK_W;
-        Player[1].AktionKeyboard[AKTION_UNTEN] = DIK_X;
-        Player[1].AktionKeyboard[AKTION_JUMP] = DIK_G;
-        Player[1].AktionKeyboard[AKTION_SHOOT] = DIK_H;
-        Player[1].AktionKeyboard[AKTION_BLITZ] = DIK_J;
-        Player[1].AktionKeyboard[AKTION_POWERLINE] = DIK_T;
-        Player[1].AktionKeyboard[AKTION_GRANATE] = DIK_Z;
-        Player[1].AktionKeyboard[AKTION_SMARTBOMB] = DIK_U;
+        Player[1].AktionKeyboard[AKTION_LINKS] = DIK_LEFT;
+        Player[1].AktionKeyboard[AKTION_RECHTS] = DIK_RIGHT;
+        Player[1].AktionKeyboard[AKTION_DUCKEN] = DIK_DOWN;
+        Player[1].AktionKeyboard[AKTION_OBEN] = DIK_UP;
+        Player[1].AktionKeyboard[AKTION_UNTEN] = DIK_DOWN;
+        Player[1].AktionKeyboard[AKTION_JUMP] = DIK_NUMPAD0;
+        Player[1].AktionKeyboard[AKTION_SHOOT] = DIK_NUMPAD1;
+        Player[1].AktionKeyboard[AKTION_BLITZ] = DIK_NUMPAD2;
+        Player[1].AktionKeyboard[AKTION_POWERLINE] = DIK_NUMPAD3;
+        Player[1].AktionKeyboard[AKTION_GRANATE] = DIK_NUMPAD4;
+        Player[1].AktionKeyboard[AKTION_SMARTBOMB] = DIK_NUMPAD5;
         Player[1].AktionKeyboard[AKTION_WAFFE_SPREAD] = 0;
         Player[1].AktionKeyboard[AKTION_WAFFE_LASER] = 0;
         Player[1].AktionKeyboard[AKTION_WAFFE_BOUNCE] = 0;
-        Player[1].AktionKeyboard[AKTION_WAFFEN_CYCLE] = DIK_Q;
+        Player[1].AktionKeyboard[AKTION_WAFFEN_CYCLE] = DIK_NUMPAD6;
 
         Player[1].AktionJoystick[AKTION_LINKS] = -1;
         Player[1].AktionJoystick[AKTION_RECHTS] = -1;
