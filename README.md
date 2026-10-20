@@ -37,8 +37,18 @@ Building for PI 5
     cmake -DCMAKE_BUILD_TYPE=Release -DRENDERER=GL2  ..
     cmake --build .
     cd ..
-    ./build/hurrican -NV -colorbleed
-This Pi 5 will deliver a smooth 400fps and the graphics look good. I am struggling to disable the ctrl-alt-arrow keys, which resize the window during game play. Frame-sync is not working properly and results in a 30fps display. Advice appreciated on both these issues!
+    ./build/hurrican -NV --colorbleed
+
+The Pi 5 delivers a smooth 400fps and the graphics look good. Frame-sync is not working properly and results in a 30fps display; advice appreciated!
+
+Building on Ubuntu 24.04
+
+Install the same packages as above, then point cmake at the system SDL2 library explicitly:
+
+    cd HurricanGame/Hurrican
+    mkdir build && cd build
+    SDL2_LIBRARIES="/lib/x86_64-linux-gnu/libSDL2-2.0.so.0" cmake -DCMAKE_BUILD_TYPE=Release -DRENDERER=GL2 ..
+    cmake --build .
 
 
 
@@ -82,3 +92,57 @@ To see the available command line options use the `--help` argument
     ./build/hurrican --help
 
 or check online at https://github.com/HurricanGame/Hurrican/wiki/Help
+
+### Default controls
+
+The default keyboard layout avoids Ctrl and Alt, because Ctrl+Alt+Arrow is a window-manager shortcut
+(workspace switching) on many Linux desktops and was being intercepted during play.
+
+| Action        | Player 1    | Player 2      |
+|---------------|-------------|---------------|
+| Left / Right  | A / D       | Left / Right  |
+| Look up       | W           | Up            |
+| Duck          | S           | Down          |
+| Jump          | Space       | Numpad 0      |
+| Fire          | Right Shift | Numpad 1      |
+| Beam          | Enter       | Numpad 2      |
+| Powerline     | Left Shift  | Numpad 3      |
+| Grenade       | E           | Numpad 4      |
+| Smartbomb     | R           | Numpad 5      |
+| Weapon cycle  | Q           | Numpad 6      |
+
+Defaults only apply when there is no saved configuration. If you played an earlier version, use the
+reset-to-defaults option in the controls menu, or delete `~/.config/hurrican/Hurrican.cfg`.
+
+### High-resolution mode
+
+The game logic works in 640x480, and by default every frame is drawn into a 640x480 buffer that is then
+stretched to the screen. With `--renderscale` the buffer is made larger (the game still positions
+everything in 640x480 terms), so rotated and scaled sprites, smooth movement and effects are drawn
+at the higher resolution:
+
+    ./build/hurrican --renderscale 2        # fullscreen, rendered at 1280x960
+    ./build/hurrican -W --renderscale 2     # 1280x960 window
+
+Valid values are 1 to 4 (default 1). This needs the GL2 or GL3 renderer with FBO support (the default);
+if the larger buffer can't be created the game falls back to 1.
+
+#### High-resolution textures
+
+When the render scale is above 1, textures are loaded from `data/textures/hd/` if a copy exists there,
+falling back to the original in `data/textures/`. The folder isn't part of the repository; generate it
+with the upscaling script (needs Python 3 with Pillow and NumPy, e.g. `sudo apt-get install python3-pil python3-numpy`):
+
+    cd HurricanGame/Hurrican
+    tools/upscale_textures.py
+
+This writes 2x copies of all textures (about 120 MB, a couple of minutes). By default it uses Lanczos
+resizing, which smooths jagged edges but can't add detail. For better results pass an AI upscaler such
+as [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan); `{in}`, `{out}` and `{scale}`
+are substituted:
+
+    tools/upscale_textures.py --force --command "realesrgan-ncnn-vulkan -i {in} -o {out} -s {scale} -n realesr-animevideov3"
+
+Other options: `--scale N` for a different factor (match it to `--renderscale`), `--src`/`--dst` for
+other folders, and `--force` to overwrite existing files. Transparency is preserved, and level tilesets
+are upscaled tile by tile so neighbouring tiles on the sheet don't bleed into each other's edges.
