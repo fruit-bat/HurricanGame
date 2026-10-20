@@ -161,7 +161,7 @@ chmod +x realesrgan/realesrgan-ncnn-vulkan
 ```
 then
 ```
-cd ~/fruit-bat/HurricanGame/Hurrican
+cd ~/HurricanGame/Hurrican
 RE=~/Downloads/realesrgan
 tools/upscale_textures.py --force --command "$RE/realesrgan-ncnn-vulkan -i {in} -o {out} -s 4 -t 64 -n realesrgan-x4plus -m $RE/models"
 ```
