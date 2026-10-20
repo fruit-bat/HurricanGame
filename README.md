@@ -141,8 +141,27 @@ resizing, which smooths jagged edges but can't add detail. For better results pa
 as [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan); `{in}`, `{out}` and `{scale}`
 are substituted:
 
-    tools/upscale_textures.py --force --command "realesrgan-ncnn-vulkan -i {in} -o {out} -s {scale} -n realesr-animevideov3"
+    tools/upscale_textures.py --force --command "realesrgan-ncnn-vulkan -i {in} -o {out} -s 4 -t 64 -n realesrgan-x4plus -m /path/to/realesrgan/models"
+
+`realesrgan-x4plus` suits Hurrican's pre-rendered art best; `realesr-animevideov3` is much faster but softer.
+`-s 4` is required by the x4plus models (the script resizes the result down to 2x). On integrated GPUs keep
+`-t 64` (tile size): larger tiles can exceed the kernel's GPU timeout, causing a GPU reset and black output,
+which the script now reports as a failure.
 
 Other options: `--scale N` for a different factor (match it to `--renderscale`), `--src`/`--dst` for
 other folders, and `--force` to overwrite existing files. Transparency is preserved, and level tilesets
 are upscaled tile by tile so neighbouring tiles on the sheet don't bleed into each other's edges.
+
+e.g.
+```
+cd ~/Downloads
+wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-ubuntu.zip
+unzip realesrgan-ncnn-vulkan-20220424-ubuntu.zip -d realesrgan
+chmod +x realesrgan/realesrgan-ncnn-vulkan
+```
+then
+```
+cd ~/fruit-bat/HurricanGame/Hurrican
+RE=~/Downloads/realesrgan
+tools/upscale_textures.py --force --command "$RE/realesrgan-ncnn-vulkan -i {in} -o {out} -s 4 -t 64 -n realesrgan-x4plus -m $RE/models"
+```

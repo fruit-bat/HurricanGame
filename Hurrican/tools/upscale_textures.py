@@ -71,7 +71,12 @@ def resize(img, scale, command):
             tmp_out = Path(tmp) / "out.png"
             img.convert("RGB").save(tmp_in)
             cmd = [arg.format(**{"in": tmp_in, "out": tmp_out, "scale": scale}) for arg in shlex.split(command)]
-            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+            # Upscalers tend to print GPU details and progress to stderr; only show it on failure
+            run = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            # ncnn-vulkan tools exit with 0 even when the GPU job fails (e.g. after a GPU reset),
+            # leaving a black image, so check the log as well
+            if run.returncode != 0 or not tmp_out.exists() or "vkQueueSubmit failed" in run.stdout:
+                raise RuntimeError(f"upscaler failed (exit {run.returncode}):\n{run.stdout.strip()}")
             rgb = Image.open(tmp_out).convert("RGB")
             if rgb.size != size:
                 rgb = rgb.resize(size, Image.LANCZOS)
